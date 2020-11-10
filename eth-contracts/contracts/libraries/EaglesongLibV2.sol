@@ -8,7 +8,6 @@ library EaglesongLibV2 {
     uint256 constant bitmatrix = 0xf5f17af93d7d1ebffaae88a7b1a2ad2156912b4915a50ad3f098784c3c26ebe3;
     uint256 constant coefficientsCon = 0x20d04031b031103120c04040c0707010416130e1f081a0c1612071f1b11080d;
     struct Consts {
-        uint8[3][16] coefficients;
         uint32[688] injection_constants;
     }
 
@@ -27,7 +26,6 @@ library EaglesongLibV2 {
     }
 
     function EaglesongPermutation(uint[16] memory state) internal pure {
-        uint8[3][16] memory coefficients = [[0, 2, 4], [0, 13, 22], [0, 4, 19], [0, 3, 14], [0, 27, 31], [0, 3, 8], [0, 17, 26], [0, 3, 12], [0, 18, 22], [0, 12, 18], [0, 4, 7], [0, 4, 31], [0, 12, 27], [0, 7, 17], [0, 7, 8], [0, 1, 13]];
         uint32[688] memory injection_constants = [ 0x6e9e40ae ,  0x71927c02 ,  0x9a13d3b1 ,  0xdaec32ad ,  0x3d8951cf ,  0xe1c9fe9a ,  0xb806b54c ,  0xacbbf417 ,
             0xd3622b3b ,  0xa082762a ,  0x9edcf1c0 ,  0xa9bada77 ,  0x7f91e46c ,  0xcb0f6e4f ,  0x265d9241 ,  0xb7bdeab0 ,
             0x6260c9e6 ,  0xff50dd2a ,  0x9036aa71 ,  0xce161879 ,  0xd1307cdf ,  0x89e456df ,  0xf83133e2 ,  0x65f55c3d ,
@@ -115,7 +113,6 @@ library EaglesongLibV2 {
             0x71369315 ,  0x796e6a66 ,  0x3a7ec708 ,  0xb05175c8 ,  0xe02b74e7 ,  0xeb377ad3 ,  0x6c8c1f54 ,  0xb980c374 ,
             0x59aee281 ,  0x449cb799 ,  0xe01f5605 ,  0xed0e085e ,  0xc9a1a3b4 ,  0xaac481b1 ,  0xc935c39c ,  0xb7d8ce7f ];
         Consts memory consts = Consts({
-            coefficients: coefficients,
             injection_constants: injection_constants
         });
         uint N = 43;
