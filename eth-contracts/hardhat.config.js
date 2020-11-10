@@ -21,13 +21,27 @@ task("accounts", "Prints the list of accounts", async () => {
 module.exports = {
     // This is a sample solc configuration that specifies which version of solc to use
     solidity: {
-        version: "0.5.10",
-        settings: {
-            optimizer: {
-                enabled: true,
-                runs: 200
+        compilers: [
+            {
+                version: "0.5.10",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 200
+                    }
+                }
+            },
+            {
+                version: "0.6.6",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 200
+                    }
+                }
             }
-        }
+        ]
+
     },
 
     defaultNetwork: "hardhat",
