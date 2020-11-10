@@ -143,10 +143,12 @@ library EaglesongLibV2 {
             state[i] = acc & 0xffffffff; // truncate to 32 bits, if necessary
         }
 
+
         // constants injection
-        uint256 tmp1;
-        uint256 tmp2;
-        if (i == 0) {
+        {
+            uint256 tmp1;
+            uint256 tmp2;
+            if (i == 0) {
             tmp1 = x0;
             tmp2 = x1;
         } else if (i == 2) {
@@ -278,13 +280,14 @@ library EaglesongLibV2 {
         }
 
 
-        // !!modified
-        for (uint i=0; i<8; i++) {
-            state[i] = state[i] ^ uint32(tmp1 >> ((7 - i) * 32)) ;
-        }
+            // !!modified
+            for (uint i=0; i<8; i++) {
+                state[i] = state[i] ^ uint32(tmp1 >> ((7 - i) * 32)) ;
+            }
 
-        for (uint i=8; i<16; i++) {
-            state[i] = state[i] ^ uint32(tmp2 >> ((15 - i) * 32)) ;
+            for (uint i=8; i<16; i++) {
+                state[i] = state[i] ^ uint32(tmp2 >> ((15 - i) * 32)) ;
+            }
         }
 
         // add / rotate / add
