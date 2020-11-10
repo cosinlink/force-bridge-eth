@@ -113,11 +113,11 @@ library EaglesongLibV2 {
     function EaglesongPermutation(uint[16] memory state) internal pure {
         uint N = 43;
         for (uint i=0; i<N; i++) {
-            EaglesongRound(state, i);
+            EaglesongRound(state, i * 2);
         }
     }
 
-    function EaglesongRound(uint[16] memory state, uint index) internal pure {
+    function EaglesongRound(uint[16] memory state, uint i) internal pure {
         // bit matrix
         uint[16] memory _new;
         for (uint j=0; j<16; j++) {
@@ -149,8 +149,7 @@ library EaglesongLibV2 {
         }
 
         // constants injection
-        uint256 i = index * 2;
-
+//        uint256 i = index;
 
         uint256 tmp1;
         uint256 tmp2;
@@ -287,13 +286,12 @@ library EaglesongLibV2 {
 
 
         // !!modified
-        for (uint i=0; i<16; i++) {
-            if (i < 8) {
-                state[i] = state[i] ^ uint32(tmp1 >> ((7 - i) * 32)) ;
-            } else {
-                state[i] = state[i] ^ uint32(tmp2 >> ((15 - i) * 32)) ;
-            }
-//            state[i] = state[i] ^ consts.injection_constants[index*16 + i];
+        for (uint i=0; i<8; i++) {
+            state[i] = state[i] ^ uint32(tmp1 >> ((7 - i) * 32)) ;
+        }
+
+        for (uint i=8; i<16; i++) {
+            state[i] = state[i] ^ uint32(tmp2 >> ((15 - i) * 32)) ;
         }
 
         // add / rotate / add
