@@ -3,12 +3,28 @@
 // When running the script with `buidler run <script>` you'll find the Buidler
 // Runtime Environment's members available in the global scope.
 const { waitingForReceipt } = require("../../test/utils");
+
+async function testInjection() {
+  // deploy TestBlake2b
+  const factory = await ethers.getContractFactory(
+      "contracts/test/TestEaglesong.sol:TestEaglesong"
+  );
+  const contract = await factory.deploy();
+  await contract.deployed();
+  const contractAddr = contract.address;
+  console.log("TestEaglesong deployed to:", contractAddr);
+
+  // calc Eaglesong
+  let res = await contract.callStatic.testInjection(0);
+  console.log(res.toString(16))
+}
+
+
 async function main() {
   // Buidler always runs the compile task when running scripts through it.
   // If this runs in a standalone fashion you may want to call compile manually
   // to make sure everything is compiled
   // await bre.run('compile');
-
   // deploy TestBlake2b
   const factory = await ethers.getContractFactory(
     "contracts/test/TestEaglesong.sol:TestEaglesong"
