@@ -10,6 +10,11 @@ $ cd force-bridge-eth/eth-contracts
 $ npm install
 $ npx hardhat test
 ```
+## Test Eaglesong
+```bash
+$ npm run start-geth
+$ npx hardhat run scripts/testnet-ropsten/test-eaglesong-v2.js --network geth && npm run stop-geth
+```
 
 ## Test on Geth private chain
 ```bash
