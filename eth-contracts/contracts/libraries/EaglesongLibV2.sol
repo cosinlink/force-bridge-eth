@@ -124,7 +124,6 @@ library EaglesongLibV2 {
             for (uint k=0; k<16; k++) {
                 // !! modified
                 uint8 tmp = uint8((bitmatrix >> (255 - k * 16 - j))) & 1;
-//old                _new[j] = _new[j] ^ (state[k] * consts.bitmatrix[k][j]);
                 _new[j] = _new[j] ^ (state[k] * tmp);
             }
             _new[j] = _new[j] & 0xffffffff;
@@ -135,22 +134,16 @@ library EaglesongLibV2 {
 
         // circulant multiplication
         for (uint i=0; i<16; i++) {
-            uint acc = 0;
-            for (uint j=0; j<3; j++) {
+            uint acc = 0 ^ (state[i]) ^ (state[i] >> 32);
+            for (uint j=1; j<3; j++) {
                 // !!modified
-                if (j == 0) {
-                    acc = acc ^ (state[i]) ^ (state[i] >> 32);
-                } else {
-                    uint8 tmp = uint8(coefficientsCon >> ((31 - (j - 1) * 16 - i) * 8));
-                    acc = acc ^ (state[i] << tmp) ^ (state[i] >> (32 - tmp));
-                }
+                uint8 tmp = uint8(coefficientsCon >> ((31 - (j - 1) * 16 - i) * 8));
+                acc = acc ^ (state[i] << tmp) ^ (state[i] >> (32 - tmp));
             }
             state[i] = acc & 0xffffffff; // truncate to 32 bits, if necessary
         }
 
         // constants injection
-//        uint256 i = index;
-
         uint256 tmp1;
         uint256 tmp2;
         if (i == 0) {
