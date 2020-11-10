@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.6;
 
-library Injections {
+library EaglesongLibV2 {
     uint256 constant x0 = 0x6e9e40ae71927c029a13d3b1daec32ad3d8951cfe1c9fe9ab806b54cacbbf417;
     uint256 constant x1 = 0xd3622b3ba082762a9edcf1c0a9bada777f91e46ccb0f6e4f265d9241b7bdeab0;
     uint256 constant x2 = 0x6260c9e6ff50dd2a9036aa71ce161879d1307cdf89e456dff83133e265f55c3d;
@@ -90,201 +90,11 @@ library Injections {
     uint256 constant x85 = 0x59aee281449cb799e01f5605ed0e085ec9a1a3b4aac481b1c935c39cb7d8ce7f;
 
 
-    function getInjectionU256(uint256 i) internal pure returns (uint256) {
-        if (i == 0) {
-            return x0;
-        } else if (i == 1) {
-            return x1;
-        } else if (i == 2) {
-            return x2;
-        } else if (i == 3) {
-            return x3;
-        } else if (i == 4) {
-            return x4;
-        } else if (i == 5) {
-            return x5;
-        } else if (i == 6) {
-            return x6;
-        } else if (i == 7) {
-            return x7;
-        } else if (i == 8) {
-            return x8;
-        } else if (i == 9) {
-            return x9;
-        } else if (i == 10) {
-            return x10;
-        } else if (i == 11) {
-            return x11;
-        } else if (i == 12) {
-            return x12;
-        } else if (i == 13) {
-            return x13;
-        } else if (i == 14) {
-            return x14;
-        } else if (i == 15) {
-            return x15;
-        } else if (i == 16) {
-            return x16;
-        } else if (i == 17) {
-            return x17;
-        } else if (i == 18) {
-            return x18;
-        } else if (i == 19) {
-            return x19;
-        } else if (i == 20) {
-            return x20;
-        } else if (i == 21) {
-            return x21;
-        } else if (i == 22) {
-            return x22;
-        } else if (i == 23) {
-            return x23;
-        } else if (i == 24) {
-            return x24;
-        } else if (i == 25) {
-            return x25;
-        } else if (i == 26) {
-            return x26;
-        } else if (i == 27) {
-            return x27;
-        } else if (i == 28) {
-            return x28;
-        } else if (i == 29) {
-            return x29;
-        } else if (i == 30) {
-            return x30;
-        } else if (i == 31) {
-            return x31;
-        } else if (i == 32) {
-            return x32;
-        } else if (i == 33) {
-            return x33;
-        } else if (i == 34) {
-            return x34;
-        } else if (i == 35) {
-            return x35;
-        } else if (i == 36) {
-            return x36;
-        } else if (i == 37) {
-            return x37;
-        } else if (i == 38) {
-            return x38;
-        } else if (i == 39) {
-            return x39;
-        } else if (i == 40) {
-            return x40;
-        } else if (i == 41) {
-            return x41;
-        } else if (i == 42) {
-            return x42;
-        } else if (i == 43) {
-            return x43;
-        } else if (i == 44) {
-            return x44;
-        } else if (i == 45) {
-            return x45;
-        } else if (i == 46) {
-            return x46;
-        } else if (i == 47) {
-            return x47;
-        } else if (i == 48) {
-            return x48;
-        } else if (i == 49) {
-            return x49;
-        } else if (i == 50) {
-            return x50;
-        } else if (i == 51) {
-            return x51;
-        } else if (i == 52) {
-            return x52;
-        } else if (i == 53) {
-            return x53;
-        } else if (i == 54) {
-            return x54;
-        } else if (i == 55) {
-            return x55;
-        } else if (i == 56) {
-            return x56;
-        } else if (i == 57) {
-            return x57;
-        } else if (i == 58) {
-            return x58;
-        } else if (i == 59) {
-            return x59;
-        } else if (i == 60) {
-            return x60;
-        } else if (i == 61) {
-            return x61;
-        } else if (i == 62) {
-            return x62;
-        } else if (i == 63) {
-            return x63;
-        } else if (i == 64) {
-            return x64;
-        } else if (i == 65) {
-            return x65;
-        } else if (i == 66) {
-            return x66;
-        } else if (i == 67) {
-            return x67;
-        } else if (i == 68) {
-            return x68;
-        } else if (i == 69) {
-            return x69;
-        } else if (i == 70) {
-            return x70;
-        } else if (i == 71) {
-            return x71;
-        } else if (i == 72) {
-            return x72;
-        } else if (i == 73) {
-            return x73;
-        } else if (i == 74) {
-            return x74;
-        } else if (i == 75) {
-            return x75;
-        } else if (i == 76) {
-            return x76;
-        } else if (i == 77) {
-            return x77;
-        } else if (i == 78) {
-            return x78;
-        } else if (i == 79) {
-            return x79;
-        } else if (i == 80) {
-            return x80;
-        } else if (i == 81) {
-            return x81;
-        } else if (i == 82) {
-            return x82;
-        } else if (i == 83) {
-            return x83;
-        } else if (i == 84) {
-            return x84;
-        } else if (i == 85) {
-            return x85;
-        }
-        return 0;
-    }
-
-    function getInjection(uint256 index) internal pure returns (uint32) {
-        //  0 <= i <= 687
-        uint256 i = index / 8;
-        uint256 j = index % 8;
-        uint256 x = getInjectionU256(i);
-        return uint32(x >> ((7 - j) * 32));
-    }
-}
-
-library EaglesongLibV2 {
     uint constant DELIMITER = 0x06;
     uint constant OUTPUT_LEN = 32;
 
     uint256 constant bitmatrix = 0xf5f17af93d7d1ebffaae88a7b1a2ad2156912b4915a50ad3f098784c3c26ebe3;
     uint256 constant coefficientsCon = 0x20d04031b031103120c04040c0707010416130e1f081a0c1612071f1b11080d;
-//    struct Consts {
-//        uint32[688] injection_constants;
-//    }
 
     // TODO using assembly code to modify bytesToBytes32
     function bytesToBytes32(bytes memory b, uint offset) private pure returns (bytes32) {
@@ -339,9 +149,150 @@ library EaglesongLibV2 {
         }
 
         // constants injection
+        uint256 i = index * 2;
+
+
+        uint256 tmp1;
+        uint256 tmp2;
+        if (i == 0) {
+            tmp1 = x0;
+            tmp2 = x1;
+        } else if (i == 2) {
+            tmp1 = x2;
+            tmp2 = x3;
+        } else if (i == 4) {
+            tmp1 = x4;
+            tmp2 = x5;
+        } else if (i == 6) {
+            tmp1 = x6;
+            tmp2 = x7;
+        } else if (i == 8) {
+            tmp1 = x8;
+            tmp2 = x9;
+        } else if (i == 10) {
+            tmp1 = x10;
+            tmp2 = x11;
+        } else if (i == 12) {
+            tmp1 = x12;
+            tmp2 = x13;
+        } else if (i == 14) {
+            tmp1 = x14;
+            tmp2 = x15;
+        } else if (i == 16) {
+            tmp1 = x16;
+            tmp2 = x17;
+        } else if (i == 18) {
+            tmp1 = x18;
+            tmp2 = x19;
+        } else if (i == 20) {
+            tmp1 = x20;
+            tmp2 = x21;
+        } else if (i == 22) {
+            tmp1 = x22;
+            tmp2 = x23;
+        } else if (i == 24) {
+            tmp1 = x24;
+            tmp2 = x25;
+        } else if (i == 26) {
+            tmp1 = x26;
+            tmp2 = x27;
+        } else if (i == 28) {
+            tmp1 = x28;
+            tmp2 = x29;
+        } else if (i == 30) {
+            tmp1 = x30;
+            tmp2 = x31;
+        } else if (i == 32) {
+            tmp1 = x32;
+            tmp2 = x33;
+        } else if (i == 34) {
+            tmp1 = x34;
+            tmp2 = x35;
+        } else if (i == 36) {
+            tmp1 = x36;
+            tmp2 = x37;
+        } else if (i == 38) {
+            tmp1 = x38;
+            tmp2 = x39;
+        } else if (i == 40) {
+            tmp1 = x40;
+            tmp2 = x41;
+        } else if (i == 42) {
+            tmp1 = x42;
+            tmp2 = x43;
+        } else if (i == 44) {
+            tmp1 = x44;
+            tmp2 = x45;
+        } else if (i == 46) {
+            tmp1 = x46;
+            tmp2 = x47;
+        } else if (i == 48) {
+            tmp1 = x48;
+            tmp2 = x49;
+        } else if (i == 50) {
+            tmp1 = x50;
+            tmp2 = x51;
+        } else if (i == 52) {
+            tmp1 = x52;
+            tmp2 = x53;
+        } else if (i == 54) {
+            tmp1 = x54;
+            tmp2 = x55;
+        } else if (i == 56) {
+            tmp1 = x56;
+            tmp2 = x57;
+        } else if (i == 58) {
+            tmp1 = x58;
+            tmp2 = x59;
+        } else if (i == 60) {
+            tmp1 = x60;
+            tmp2 = x61;
+        } else if (i == 62) {
+            tmp1 = x62;
+            tmp2 = x63;
+        } else if (i == 64) {
+            tmp1 = x64;
+            tmp2 = x65;
+        } else if (i == 66) {
+            tmp1 = x66;
+            tmp2 = x67;
+        } else if (i == 68) {
+            tmp1 = x68;
+            tmp2 = x69;
+        } else if (i == 70) {
+            tmp1 = x70;
+            tmp2 = x71;
+        } else if (i == 72) {
+            tmp1 = x72;
+            tmp2 = x73;
+        } else if (i == 74) {
+            tmp1 = x74;
+            tmp2 = x75;
+        } else if (i == 76) {
+            tmp1 = x76;
+            tmp2 = x77;
+        } else if (i == 78) {
+            tmp1 = x78;
+            tmp2 = x79;
+        } else if (i == 80) {
+            tmp1 = x80;
+            tmp2 = x81;
+        } else if (i == 82) {
+            tmp1 = x82;
+            tmp2 = x83;
+        } else if (i == 84) {
+            tmp1 = x84;
+            tmp2 = x85;
+        }
+
+
+        // !!modified
         for (uint i=0; i<16; i++) {
-            // !!modified
-            state[i] = state[i] ^ Injections.getInjection(index * 16 + i);
+            if (i < 8) {
+                state[i] = state[i] ^ uint32(tmp1 >> ((7 - i) * 32)) ;
+            } else {
+                state[i] = state[i] ^ uint32(tmp2 >> ((15 - i) * 32)) ;
+            }
 //            state[i] = state[i] ^ consts.injection_constants[index*16 + i];
         }
 
