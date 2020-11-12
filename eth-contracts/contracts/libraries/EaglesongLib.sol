@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.5.10;
+import "hardhat/console.sol";
 
 library EaglesongLib {
     uint constant DELIMITER = 0x06;
@@ -12,7 +13,7 @@ library EaglesongLib {
     }
 
     // TODO using assembly code to modify bytesToBytes32
-    function bytesToBytes32(bytes memory b, uint offset) private pure returns (bytes32) {
+    function bytesToBytes32(bytes memory b, uint offset) private view returns (bytes32) {
         bytes32 out;
         for (uint i = 0; i < 32; i++) {
             out |= bytes32(b[offset + i] & 0xFF) >> (i * 8);
@@ -20,12 +21,51 @@ library EaglesongLib {
         return out;
     }
 
-    function EaglesongHash(bytes memory data) internal pure returns (bytes32) {
+    function EaglesongHash(bytes memory data) internal view returns (bytes32) {
         bytes memory output = EaglesongSponge(data, OUTPUT_LEN, DELIMITER);
         return bytesToBytes32(output, 0);
     }
 
-    function EaglesongPermutation(uint[16] memory state) internal pure {
+    function EaglesongSponge(bytes memory input, uint num_output_bytes, uint delimiter) internal view returns (bytes memory output) {
+        uint rate = 256;
+        uint[16] memory state;
+
+        // absorbing
+        for (uint i=0; i<((input.length+1)*8+rate-1) / rate; i++) {
+            for (uint j=0; j<rate/32; j++) {
+                uint integer = 0;
+                for (uint k=0; k<4; k++) {
+                    if (i*rate/8 + j*4 + k < input.length) {
+                        integer = (integer << 8) ^ uint8(input[i*rate/8+j*4+k]);
+                    } else if (i*rate/8 + j*4 + k == input.length) {
+                        integer = (integer << 8) ^ delimiter;
+                    }
+                }
+                state[j] = state[j] ^ integer;
+            }
+            EaglesongPermutation(state);
+        }
+
+        // squeezing
+        bytes memory output_bytes = new bytes(num_output_bytes);
+        for (uint i=0; i<num_output_bytes/(rate/8); i++) {
+            for (uint j=0; j<rate/32; j++) {
+                for (uint k=0; k<4; k++) {
+                    output_bytes[i*rate/8 + j*4 + k] = byte(uint8((state[j] >> (8*k)) & 0xff));
+                }
+            }
+            // this condition is not in the python implementation.
+            // It is not used in the final loop and may trigger unknown error in solidity,
+            // so we add it here.
+            if (i != num_output_bytes/(rate/8) - 1) {
+                EaglesongPermutation(state);
+            }
+        }
+
+        return output_bytes;
+    }
+
+    function EaglesongPermutation(uint[16] memory state) internal view {
         uint8[16][16] memory bitmatrix = [[1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1],
             [0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1],
             [0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
@@ -140,7 +180,7 @@ library EaglesongLib {
         }
     }
 
-    function EaglesongRound(uint[16] memory state, uint index, Consts memory consts ) internal pure {
+    function EaglesongRound(uint[16] memory state, uint index, Consts memory consts ) internal view {
         // bit matrix
         uint[16] memory _new;
         for (uint j=0; j<16; j++) {
@@ -149,8 +189,10 @@ library EaglesongLib {
             }
             _new[j] = _new[j] & 0xffffffff;
         }
+        console.log("bit matrix calc result: ");
         for (uint j=0; j<16; j++) {
             state[j] = _new[j];
+            console.log(state[j]);
         }
 
         // circulant multiplication
@@ -176,42 +218,5 @@ library EaglesongLib {
         }
     }
 
-    function EaglesongSponge(bytes memory input, uint num_output_bytes, uint delimiter) internal pure returns (bytes memory output) {
-        uint rate = 256;
-        uint[16] memory state;
 
-        // absorbing
-        for (uint i=0; i<((input.length+1)*8+rate-1) / rate; i++) {
-            for (uint j=0; j<rate/32; j++) {
-                uint integer = 0;
-                for (uint k=0; k<4; k++) {
-                    if (i*rate/8 + j*4 + k < input.length) {
-                        integer = (integer << 8) ^ uint8(input[i*rate/8+j*4+k]);
-                    } else if (i*rate/8 + j*4 + k == input.length) {
-                        integer = (integer << 8) ^ delimiter;
-                    }
-                }
-                state[j] = state[j] ^ integer;
-            }
-            EaglesongPermutation(state);
-        }
-
-        // squeezing
-        bytes memory output_bytes = new bytes(num_output_bytes);
-        for (uint i=0; i<num_output_bytes/(rate/8); i++) {
-            for (uint j=0; j<rate/32; j++) {
-                for (uint k=0; k<4; k++) {
-                    output_bytes[i*rate/8 + j*4 + k] = byte(uint8((state[j] >> (8*k)) & 0xff));
-                }
-            }
-            // this condition is not in the python implementation.
-            // It is not used in the final loop and may trigger unknown error in solidity,
-            // so we add it here.
-            if (i != num_output_bytes/(rate/8) - 1) {
-                EaglesongPermutation(state);
-            }
-        }
-
-        return output_bytes;
-    }
 }
