@@ -4,7 +4,7 @@ const {log} = console
 const unitsTransform = () => {
 
     // 1. eth amount -> wei amount
-    let wei = ethers.utils.parseEther('1.5');
+    let wei = ethers.utils.parseEther('4000');
     log(wei.toString())
 
     // 2. wei amount -> eth amount
