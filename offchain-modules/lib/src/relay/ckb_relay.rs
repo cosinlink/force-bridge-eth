@@ -1,19 +1,21 @@
 use crate::transfer::to_eth::get_add_ckb_headers_func;
 use crate::util::ckb_util::Generator;
-use crate::util::eth_util::Web3Client;
+use crate::util::eth_util::{relay_header_transaction, Web3Client};
 use anyhow::{anyhow, bail, Result};
 use ethabi::Token;
 use ethereum_types::U256;
+use futures::future::join_all;
 use log::info;
-use std::time::Duration;
-use web3::types::{Bytes, H160};
+use std::ops::Add;
+use std::time::Instant;
+use web3::types::H160;
 
 pub struct CKBRelayer {
-    pub from: H160,
     pub contract_addr: H160,
     pub priv_key_path: String,
     pub ckb_client: Generator,
     pub web3_client: Web3Client,
+    pub gas_price: U256,
 }
 
 impl CKBRelayer {
@@ -21,23 +23,24 @@ impl CKBRelayer {
         ckb_rpc_url: String,
         indexer_url: String,
         eth_rpc_url: String,
-        from: H160,
         contract_addr: H160,
         priv_key_path: String,
+        gas_price: u64,
     ) -> Result<CKBRelayer> {
         let ckb_client = Generator::new(ckb_rpc_url, indexer_url, Default::default())
             .map_err(|e| anyhow!("failed to crate generator: {}", e))?;
         let web3_client = Web3Client::new(eth_rpc_url);
+        let gas_price = U256::from(gas_price);
 
         Ok(CKBRelayer {
-            from,
             contract_addr,
             priv_key_path,
             ckb_client,
             web3_client,
+            gas_price,
         })
     }
-    pub async fn start(&mut self) -> Result<()> {
+    pub async fn start(&mut self, eth_url: String, per_amount: u64) -> Result<()> {
         let mut client_block_number = self
             .web3_client
             .get_contract_height("latestBlockNumber", self.contract_addr)
@@ -72,25 +75,40 @@ impl CKBRelayer {
         }
 
         let mut block_height = client_block_number + 1;
-        let block_gap = 1;
 
         let ckb_current_height = self
             .ckb_client
             .rpc_client
             .get_tip_block_number()
             .map_err(|e| anyhow!("failed to get ckb current height : {}", e))?;
+        info!("ckb_current_height:{:?}", ckb_current_height);
 
-        while block_height < ckb_current_height {
-            let height_range = block_height..block_height + block_gap;
-            block_height += block_gap;
+        let nonce = self
+            .web3_client
+            .get_eth_nonce(self.priv_key_path.clone())
+            .await?;
+        let mut sequence: u64 = 0;
+
+        let mut futures = vec![];
+        while block_height + per_amount < ckb_current_height {
+            let height_range = block_height..block_height + per_amount;
+            block_height += per_amount;
 
             let heights: Vec<u64> = height_range.clone().collect();
-            self.relay_headers(heights).await?;
+            let sign_tx = self.relay_headers(heights, nonce.add(sequence)).await?;
+            futures.push(relay_header_transaction(eth_url.clone(), sign_tx));
+            sequence += 1;
+        }
+        if !futures.is_empty() {
+            let now = Instant::now();
+            let results = join_all(futures).await;
+            info!("join_all execute result {:?}", results);
+            info!("relay headers time elapsed: {:?}", now.elapsed());
         }
         Ok(())
     }
 
-    pub async fn relay_headers(&mut self, heights: Vec<u64>) -> Result<()> {
+    pub async fn relay_headers(&mut self, heights: Vec<u64>, asec_nonce: U256) -> Result<Vec<u8>> {
         let headers = self.ckb_client.get_ckb_headers(heights.clone())?;
         info!(
             "the headers vec of {:?} is {:?} ",
@@ -106,31 +124,11 @@ impl CKBRelayer {
                 self.contract_addr,
                 self.priv_key_path.clone(),
                 add_headers_abi,
+                self.gas_price,
                 U256::from(0),
+                asec_nonce,
             )
             .await?;
-        let tx_receipt = self
-            .web3_client
-            .client()
-            .send_raw_transaction_with_confirmation(
-                Bytes::from(signed_tx),
-                Duration::new(10, 100),
-                1,
-            )
-            .await?;
-        let tx_status = tx_receipt
-            .status
-            .ok_or_else(|| anyhow!("tx receipt is none"))?;
-        let hex_tx_hash = hex::encode(tx_receipt.transaction_hash);
-        if tx_status.as_usize() == 1 {
-            info!("relay headers success. tx_hash : {} ", hex_tx_hash)
-        } else {
-            bail!(
-                "failed to relay headers tx_hash: {} , tx_status : {}",
-                hex_tx_hash,
-                tx_status
-            );
-        }
-        Ok(())
+        Ok(signed_tx)
     }
 }

@@ -9,12 +9,15 @@ pub struct Opts {
 
 #[derive(Clap, Clone, Debug)]
 pub enum SubCommand {
+    Server(ServerArgs),
+    InitCkbLightContract(InitCkbLightContractArgs),
     DevInit(DevInitArgs),
+    CreateBridgeCell(CreateBridgeCellArgs),
     TransferToCkb(TransferToCkbArgs),
     Approve(ApproveArgs),
     LockToken(LockTokenArgs),
     LockEth(LockEthArgs),
-    GenerateEthProof(GenerateEthProofArgs),
+    // GenerateEthProof(GenerateEthProofArgs),
     Mint(MintArgs),
     TransferFromCkb(TransferFromCkbArgs),
     TransferSudt(TransferSudtArgs),
@@ -27,43 +30,91 @@ pub enum SubCommand {
 }
 
 #[derive(Clap, Clone, Debug)]
-pub struct DevInitArgs {
-    #[clap(short = 'f', long)]
-    pub force: bool,
-    #[clap(long, default_value = "/tmp/.force-bridge-cli/config.toml")]
+pub struct ServerArgs {
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
+    pub config_path: String,
+    #[clap(long, default_value = "http://127.0.0.1:8114")]
+    pub ckb_rpc_url: String,
+    #[clap(long, default_value = "http://127.0.0.1:8545")]
+    pub eth_rpc_url: String,
+    #[clap(long, default_value = "http://127.0.0.1:8116")]
+    pub indexer_url: String,
+    #[clap(short, long, default_value = "127.0.0.1:3030")]
+    pub listen_url: String,
+    #[clap(short = 'k', long, default_value = "privkeys/ckb_key")]
+    pub private_key_path: String,
+}
+
+#[derive(Clap, Clone, Debug)]
+pub struct CreateBridgeCellArgs {
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
     pub config_path: String,
     #[clap(long, default_value = "http://127.0.0.1:8114")]
     pub rpc_url: String,
     #[clap(long, default_value = "http://127.0.0.1:8116")]
     pub indexer_url: String,
-    #[clap(short = 'k', long, default_value = "cli/privkeys/ckb_key")]
+    #[clap(short = 'k', long, default_value = "privkeys/ckb_key")]
     pub private_key_path: String,
-    #[clap(
-        long,
-        default_value = "../ckb-contracts/build/release/eth-bridge-typescript"
-    )]
-    pub bridge_typescript_path: String,
-    #[clap(
-        long,
-        default_value = "../ckb-contracts/build/release/eth-bridge-lockscript"
-    )]
-    pub bridge_lockscript_path: String,
-    #[clap(
-        long,
-        default_value = "../ckb-contracts/build/release/eth-light-client-typescript"
-    )]
-    pub light_client_typescript_path: String,
-    #[clap(
-        long,
-        default_value = "../ckb-contracts/build/release/eth-recipient-typescript"
-    )]
-    pub recipient_typescript_path: String,
-    #[clap(long, default_value = "cli/deps/simple_udt")]
-    pub sudt_path: String,
-    #[clap(long)]
-    pub eth_contract_address: String,
     #[clap(long)]
     pub eth_token_address: String,
+    #[clap(long)]
+    pub recipient_address: String,
+    #[clap(long, default_value = "0.1")]
+    pub tx_fee: String,
+    #[clap(long, default_value = "283")]
+    pub capacity: String,
+    #[clap(long, default_value = "0")]
+    pub bridge_fee: u128,
+}
+
+#[derive(Clap, Clone, Debug)]
+pub struct InitCkbLightContractArgs {
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
+    pub config_path: String,
+    #[clap(short, long)]
+    pub init_height: u64,
+    #[clap(short, long)]
+    pub finalized_gc: u64,
+    #[clap(short, long)]
+    pub canonical_gc: u64,
+    #[clap(long, default_value = "http://127.0.0.1:8545")]
+    pub eth_rpc_url: String,
+    #[clap(long, default_value = "http://127.0.0.1:8114")]
+    pub ckb_rpc_url: String,
+    #[clap(long, default_value = "http://127.0.0.1:8116")]
+    pub indexer_url: String,
+    #[clap(short = 'k', long, default_value = "privkeys/eth_key")]
+    pub private_key_path: String,
+    #[clap(short, long, default_value = "0")]
+    pub gas_price: u64,
+    #[clap(long)]
+    pub wait: bool,
+}
+
+#[derive(Clap, Clone, Debug)]
+pub struct DevInitArgs {
+    #[clap(short = 'f', long)]
+    pub force: bool,
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
+    pub config_path: String,
+    #[clap(long, default_value = "http://127.0.0.1:8114")]
+    pub rpc_url: String,
+    #[clap(long, default_value = "http://127.0.0.1:8116")]
+    pub indexer_url: String,
+    #[clap(short = 'k', long, default_value = "privkeys/ckb_key")]
+    pub private_key_path: String,
+    #[clap(long, default_value = "contracts/eth-bridge-typescript")]
+    pub bridge_typescript_path: String,
+    #[clap(long, default_value = "contracts/eth-bridge-lockscript")]
+    pub bridge_lockscript_path: String,
+    #[clap(long, default_value = "contracts/eth-light-client-typescript")]
+    pub light_client_typescript_path: String,
+    #[clap(long, default_value = "contracts/eth-light-client-lockscript")]
+    pub light_client_lockscript_path: String,
+    #[clap(long, default_value = "contracts/eth-recipient-typescript")]
+    pub recipient_typescript_path: String,
+    #[clap(long, default_value = "contracts/simple_udt")]
+    pub sudt_path: String,
 }
 
 #[derive(Clap, Clone, Debug)]
@@ -71,23 +122,25 @@ pub struct TransferToCkbArgs {}
 
 #[derive(Clap, Clone, Debug)]
 pub struct ApproveArgs {
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
+    pub config_path: String,
     #[clap(short, long)]
-    pub from: String,
-    #[clap(short, long)]
-    pub to: String,
-    #[clap(long, default_value = "http://127.0.0.1:9545")]
+    pub erc20_addr: String,
+    #[clap(long, default_value = "http://127.0.0.1:8545")]
     pub rpc_url: String,
-    #[clap(short = 'k', long, default_value = "cli/privkeys/eth_key")]
+    #[clap(short = 'k', long, default_value = "privkeys/eth_key")]
     pub private_key_path: String,
+    #[clap(long)]
+    pub wait: bool,
+    #[clap(short, long, default_value = "0")]
+    pub gas_price: u64,
 }
 
 #[derive(Clap, Clone, Debug)]
 pub struct LockTokenArgs {
-    #[clap(short, long)]
-    pub to: String,
-    #[clap(long, default_value = "http://127.0.0.1:9545")]
+    #[clap(long, default_value = "http://127.0.0.1:8545")]
     pub rpc_url: String,
-    #[clap(short = 'k', long, default_value = "cli/privkeys/eth_key")]
+    #[clap(short = 'k', long, default_value = "privkeys/eth_key")]
     pub private_key_path: String,
     #[clap(long)]
     pub token: String,
@@ -95,39 +148,49 @@ pub struct LockTokenArgs {
     pub amount: u128,
     #[clap(short, long)]
     pub bridge_fee: u128,
-    #[clap(long, default_value = "/tmp/.force-bridge-cli/config.toml")]
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
     pub config_path: String,
     #[clap(long)]
     pub sudt_extra_data: String,
-    #[clap(long, default_value = "ckt1qyqvsv5240xeh85wvnau2eky8pwrhh4jr8ts8vyj37")]
+    #[clap(long)]
     pub ckb_recipient_address: String,
+    #[clap(long)]
+    pub replay_resist_outpoint: String,
+    #[clap(long)]
+    pub wait: bool,
+    #[clap(short, long, default_value = "0")]
+    pub gas_price: u64,
 }
 
 #[derive(Clap, Clone, Debug)]
 pub struct LockEthArgs {
-    #[clap(short, long)]
-    pub to: String,
-    #[clap(long, default_value = "http://127.0.0.1:9545")]
+    #[clap(long, default_value = "http://127.0.0.1:8545")]
     pub rpc_url: String,
-    #[clap(short = 'k', long, default_value = "cli/privkeys/eth_key")]
+    #[clap(short = 'k', long, default_value = "privkeys/eth_key")]
     pub private_key_path: String,
     #[clap(short, long)]
     pub amount: u128,
     #[clap(short, long)]
     pub bridge_fee: u128,
-    #[clap(long, default_value = "/tmp/.force-bridge-cli/config.toml")]
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
     pub config_path: String,
     #[clap(long)]
     pub sudt_extra_data: String,
-    #[clap(long, default_value = "ckt1qyqvsv5240xeh85wvnau2eky8pwrhh4jr8ts8vyj37")]
+    #[clap(long)]
     pub ckb_recipient_address: String,
+    #[clap(long)]
+    pub replay_resist_outpoint: String,
+    #[clap(long)]
+    pub wait: bool,
+    #[clap(short, long, default_value = "0")]
+    pub gas_price: u64,
 }
 
 #[derive(Clap, Clone, Debug)]
 pub struct GenerateEthProofArgs {
     #[clap(short, long)]
     pub hash: String,
-    #[clap(long, default_value = "http://127.0.0.1:9545")]
+    #[clap(long, default_value = "http://127.0.0.1:8545")]
     pub rpc_url: String,
 }
 
@@ -135,33 +198,28 @@ pub struct GenerateEthProofArgs {
 pub struct MintArgs {
     #[clap(short, long)]
     pub hash: String,
-    #[clap(long, default_value = "http://127.0.0.1:9545")]
+    #[clap(long, default_value = "http://127.0.0.1:8545")]
     pub eth_rpc_url: String,
     #[clap(long, default_value = "http://127.0.0.1:8114")]
     pub ckb_rpc_url: String,
-    #[clap(long, default_value = "/tmp/.force-bridge-cli/config.toml")]
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
     pub config_path: String,
     #[clap(long, default_value = "http://127.0.0.1:8116")]
     pub indexer_url: String,
-    #[clap(short = 'k', long, default_value = "cli/privkeys/ckb_key")]
+    #[clap(short = 'k', long, default_value = "privkeys/ckb_key")]
     pub private_key_path: String,
-    #[clap(short, long)]
-    pub cell: String,
-    #[clap(long)]
-    pub eth_contract_address: String,
 }
 
 #[derive(Clap, Clone, Debug)]
-pub struct TransferFromCkbArgs {}
-
-#[derive(Clap, Clone, Debug)]
-pub struct BurnArgs {
-    #[clap(long, default_value = "/tmp/.force-bridge-cli/config.toml")]
+pub struct TransferFromCkbArgs {
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
     pub config_path: String,
     #[clap(long, default_value = "0.1")]
     pub tx_fee: String,
-    #[clap(short = 'k', long)]
-    pub private_key_path: String,
+    #[clap(long, default_value = "privkeys/ckb_key")]
+    pub ckb_privkey_path: String,
+    #[clap(long, default_value = "privkeys/eth_key")]
+    pub eth_privkey_path: String,
     #[clap(long, default_value = "http://localhost:8114")]
     pub ckb_rpc_url: String,
     #[clap(long, default_value = "http://localhost:8545")]
@@ -173,7 +231,33 @@ pub struct BurnArgs {
     #[clap(long)]
     pub receive_addr: String,
     #[clap(long)]
-    pub lock_contract_addr: String,
+    pub burn_amount: u128,
+    #[clap(long)]
+    pub unlock_fee: u128,
+    #[clap(short, long, default_value = "0")]
+    pub gas_price: u64,
+    #[clap(long)]
+    pub wait: bool,
+}
+
+#[derive(Clap, Clone, Debug)]
+pub struct BurnArgs {
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
+    pub config_path: String,
+    #[clap(long, default_value = "0.1")]
+    pub tx_fee: String,
+    #[clap(short = 'k', long, default_value = "privkeys/ckb_key")]
+    pub private_key_path: String,
+    #[clap(long, default_value = "http://localhost:8114")]
+    pub ckb_rpc_url: String,
+    #[clap(long, default_value = "http://localhost:8545")]
+    pub eth_rpc_url: String,
+    #[clap(long, default_value = "http://localhost:8116")]
+    pub indexer_rpc_url: String,
+    #[clap(long)]
+    pub token_addr: String,
+    #[clap(long)]
+    pub receive_addr: String,
     #[clap(long)]
     pub burn_amount: u128,
     #[clap(long)]
@@ -191,8 +275,6 @@ pub struct GenerateCkbProofArgs {
 #[derive(Clap, Clone, Debug)]
 pub struct UnlockArgs {
     #[clap(short, long)]
-    pub from: String,
-    #[clap(short, long)]
     pub to: String,
     #[clap(short = 'k', long)]
     pub private_key_path: String,
@@ -202,13 +284,17 @@ pub struct UnlockArgs {
     pub tx_info: String,
     #[clap(long, default_value = "http://localhost:8545")]
     pub eth_rpc_url: String,
+    #[clap(long)]
+    pub wait: bool,
+    #[clap(short, long, default_value = "0")]
+    pub gas_price: u64,
 }
 
 #[derive(Clap, Clone, Debug)]
 pub struct EthRelayArgs {
-    #[clap(long, default_value = "/tmp/.force-bridge-cli/config.toml")]
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
     pub config_path: String,
-    #[clap(short = 'k', long)]
+    #[clap(short = 'k', long, default_value = "privkeys/eth2ckb_relayer_key")]
     pub private_key_path: String,
     #[clap(long, default_value = "http://localhost:8114")]
     pub ckb_rpc_url: String,
@@ -216,19 +302,16 @@ pub struct EthRelayArgs {
     pub eth_rpc_url: String,
     #[clap(long, default_value = "http://localhost:8116")]
     pub indexer_rpc_url: String,
-    #[clap(long, default_value = "/tmp/proof_data.json")]
+    #[clap(long, default_value = "data/proof_data.json")]
     pub proof_data_path: String,
-    /// cell typescript hex
-    #[clap(short, long)]
-    pub cell: String,
 }
 
 #[derive(Clap, Clone, Debug)]
 pub struct CkbRelayArgs {
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
+    pub config_path: String,
     #[clap(short, long)]
-    pub from: String,
-    #[clap(short, long)]
-    pub to: String,
+    pub per_amount: u64,
     #[clap(short = 'k', long)]
     pub private_key_path: String,
     #[clap(long, default_value = "http://localhost:8114")]
@@ -237,11 +320,13 @@ pub struct CkbRelayArgs {
     pub eth_rpc_url: String,
     #[clap(long, default_value = "http://localhost:8116")]
     pub indexer_rpc_url: String,
+    #[clap(short, long, default_value = "0")]
+    pub gas_price: u64,
 }
 
 #[derive(Clap, Clone, Debug)]
 pub struct TransferSudtArgs {
-    #[clap(long, default_value = "/tmp/.force-bridge-cli/config.toml")]
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
     pub config_path: String,
     #[clap(short = 'k', long)]
     pub private_key_path: String,
@@ -259,13 +344,11 @@ pub struct TransferSudtArgs {
     pub token_addr: String,
     #[clap(long, default_value = "0.1")]
     pub tx_fee: String,
-    #[clap(long)]
-    pub lock_contract_addr: String,
 }
 
 #[derive(Clap, Clone, Debug)]
 pub struct SudtGetBalanceArgs {
-    #[clap(long, default_value = "/tmp/.force-bridge-cli/config.toml")]
+    #[clap(long, default_value = ".force-bridge-cli-config.toml")]
     pub config_path: String,
     #[clap(long, default_value = "http://localhost:8114")]
     pub ckb_rpc_url: String,
@@ -275,6 +358,4 @@ pub struct SudtGetBalanceArgs {
     pub addr: String,
     #[clap(long)]
     pub token_addr: String,
-    #[clap(long)]
-    pub lock_contract_addr: String,
 }

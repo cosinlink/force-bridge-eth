@@ -1,12 +1,5 @@
-const {
-  sleep,
-  log,
-  waitingForReceipt,
-  deployContract,
-} = require("../../test/utils");
+const { log, waitingForReceipt, deployContract } = require("../../test/utils");
 const { getHeaderAndHash, getHeadersVecAndHashes } = require("./generateData");
-
-const getGasUsed = async (contractMethod) => {};
 
 const deployAndInit = async (factoryPath) => {
   // 1. deploy CKBChain
@@ -40,17 +33,12 @@ const benchmark = async (factoryPath) => {
   let startIndex = 1;
   let reportSize = [1, 2, 3, 4, 5, 10, 20, 30, 40];
   for (let size of reportSize) {
-    const [headers, hashes] = getHeadersVecAndHashes(startIndex, size);
+    const [headers, _hashes] = getHeadersVecAndHashes(startIndex, size);
     startIndex += size;
-    let res;
-    if (factoryPath.endsWith("V3")) {
-      res = await contract.addHeaders(headers, hashes);
-    } else {
-      res = await contract.addHeaders(headers);
-    }
+    let res = await contract.addHeaders(headers);
     const receipt = await waitingForReceipt(provider, res);
     console.log(
-      `add ${size} Headers gas: ${receipt.gasUsed}, a header cost: ${
+      `add ${size} Headers gas: ${receipt.gasUsed}, gas cost per header: ${
         receipt.gasUsed / size
       }`
     );
@@ -60,7 +48,7 @@ const benchmark = async (factoryPath) => {
 const main = async () => {
   // addHeaders with Blake2b calc blockHash
   console.log(`---------------addHeaders with Blake2b calc blockHash`);
-  await benchmark("contracts/CKBChainV2.sol:CKBChainV2");
+  await benchmark("contracts/CKBChain.sol:CKBChain");
   console.log(`---------------end\r\n\r\n`);
 
   // addHeaders without Blake2b
