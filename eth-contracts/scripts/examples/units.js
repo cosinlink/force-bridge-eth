@@ -7,6 +7,10 @@ const unitsTransform = () => {
     let wei = ethers.utils.parseEther('4000');
     log(wei.toString())
 
+    // 1. eth amount -> wei amount
+    wei = ethers.utils.parseEther('487.2332');
+    log(wei.toString())
+
     // 2. wei amount -> eth amount
     let eth = ethers.utils.formatEther(String(1802952 * 30 * 1e9))
     log(eth)
